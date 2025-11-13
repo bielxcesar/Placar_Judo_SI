@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <!--
+  -Mas antes ligue o servidor Spring Boot
+  -Para acessar esta página localmente,
+  use:
+  http://localhost:8080/exibicao.html
+
+  -->
+
+    <meta charset="UTF-8">
+    <title>Placar de Judô</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/exibicao.css">
+    <link rel="icon" href="assets/logo_assoc.png" type="image/png">
+  </head>
+  <body>
+
+  <div class="placar-container">
+    <section class="faixa azul">
+      <div class="time">
+        <div class="time-pontos">
+          <div class="pontuacao"><div class="tipo">Ippon</div><div id="ipponA" class="valor">0</div></div>
+          <div class="pontuacao"><div class="tipo">Wazari</div><div id="wazariA" class="valor">0</div></div>
+          <div class="pontuacao"><div class="tipo">Yuko</div><div id="yukoA" class="valor">0</div></div>
+          <div class="cartoes-shido" id="cartoes-shidoA"></div>
+        </div>
+      </div>
+      <div class="barra-saikomi">
+        <div id="barraAzul" class="preenchimento-saikomi"></div>
+      </div>
+    </section>
+
+    <section class="faixa tempo-central">
+      <div class="tempo-logo-container">
+        <img src="assets/logo_assoc.png" alt="Logo da associação" class="logo-tempo">
+        <span id="tempo">00:00</span>
+      </div>
+    </section>
+
+    <section class="faixa branco">
+      <div class="time">
+        <div class="time-pontos">
+          <div class="pontuacao"><div class="tipo">Ippon</div><div id="ipponB" class="valor">0</div></div>
+          <div class="pontuacao"><div class="tipo">Wazari</div><div id="wazariB" class="valor">0</div></div>
+          <div class="pontuacao"><div class="tipo">Yuko</div><div id="yukoB" class="valor">0</div></div>
+          <div class="cartoes-shido" id="cartoes-shidoB"></div>
+        </div>
+      </div>
+      <div class="barra-saikomi">
+        <div id="barraBranco" class="preenchimento-saikomi"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Vídeos em tela cheia -->
+  <video id="ipponVideo" src="/assets/Ippon.mp4" autoplay muted playsinline class="video-fullscreen"></video>
+  <video id="goldenScoreVideo" src="/assets/golden_score.mp4" autoplay muted playsinline class="video-fullscreen"></video>
+  <video id="VenceuAzul" src="/assets/VenceuAzul.mp4" autoplay muted playsinline class="video-fullscreen"></video>
+  <video id="VenceuBranco" src="/assets/VenceuBranco.mp4" autoplay muted playsinline class="video-fullscreen"></video>
+  <script>
+    function atualizarPlacar() {
+      const placar = JSON.parse(localStorage.getItem('placar'));
+      if (!placar) return;
+
+      for (const tipo of ['ippon', 'wazari', 'yuko', 'shido']) {
+        for (const lado of ['A', 'B']) {
+          const id = `${tipo}${lado}`;
+          const el = document.getElementById(id);
+          if (el) el.textContent = placar[id];
+          if (tipo === 'shido') atualizarCartoesShido(placar[id], lado);
+        }
+      }
+    }
+
+    function atualizarCartoesShido(qtd, lado) {
+      const container = document.getElementById(`cartoes-shido${lado}`);
+      if (!container) return;
+      container.innerHTML = '';
+      for (let i = 0; i < Math.min(qtd, 3); i++) {
+        const cartao = document.createElement('div');
+        cartao.classList.add('cartao');
+        container.appendChild(cartao);
+      }
+    }
+
+    function atualizarTempo() {
+      const tempo = JSON.parse(localStorage.getItem('tempo')) || { minutos: 0, segundos: 0, golden: false };
+      const pausado = localStorage.getItem('timerPausado') === 'true'; // ✅ verifica se está pausado
+
+      const m = String(tempo.minutos).padStart(2, '0');
+      const s = String(tempo.segundos).padStart(2, '0');
+      const tempoEl = document.getElementById('tempo');
+
+      tempoEl.textContent = tempo.golden ? `+${m}:${s}` : `${m}:${s}`;
+      tempoEl.classList.toggle('golden-time', tempo.golden);      // ✅ aplica estilo de golden
+      tempoEl.classList.toggle('timer-pausado', pausado);         // ✅ aplica estilo de pausado
+    }
+
+
+    function atualizarSaikomi() {
+      const saikomi = JSON.parse(localStorage.getItem('saikomi'));
+      const barraAzul = document.getElementById('barraAzul');
+      const barraBranco = document.getElementById('barraBranco');
+      if (!saikomi || saikomi.time === null) {
+        barraAzul.style.width = '0%';
+        barraBranco.style.width = '0%';
+        return;
+      }
+      const progresso = Math.min((saikomi.segundos / 20) * 100, 100);
+      if (saikomi.time === 'azul') {
+        barraAzul.style.width = `${progresso}%`;
+        barraBranco.style.width = '0%';
+      } else {
+        barraBranco.style.width = `${progresso}%`;
+        barraAzul.style.width = '0%';
+      }
+    }
+
+    let videoEmExecucao = false;
+    function exibirVideoIppon() {
+      const video = document.getElementById('ipponVideo');
+      if (video && !videoEmExecucao) {
+        videoEmExecucao = true;
+
+        video.pause();
+        video.currentTime = 0;
+
+        video.oncanplay = () => {
+          video.style.display = 'block';
+          video.play();
+        };
+
+        if (video.readyState >= 2) {
+          video.style.display = 'block';
+          video.play();
+        }
+
+        // Após o vídeo de ippon, exibe o vídeo de vencedor
+        setTimeout(() => {
+          video.pause();
+          video.style.display = 'none';
+
+          const placar = JSON.parse(localStorage.getItem('placar'));
+          const vencedor = placar.ipponA > 0 ? 'VenceuAzul' : 'VenceuBranco';
+          console.log("Exibindo vídeo de vencedor:", vencedor);
+
+          const videoVencedor = document.getElementById(vencedor);
+          if (videoVencedor) {
+            videoVencedor.pause();
+            videoVencedor.currentTime = 0;
+
+            videoVencedor.oncanplay = () => {
+              videoVencedor.style.display = 'block';
+              videoVencedor.play();
+            };
+
+            if (videoVencedor.readyState >= 2) {
+              videoVencedor.style.display = 'block';
+              videoVencedor.play();
+            }
+
+            setTimeout(() => {
+              videoVencedor.pause();
+              videoVencedor.style.display = 'none';
+              videoEmExecucao = false;
+            }, 8000);
+          } else {
+            videoEmExecucao = false;
+          }
+        }, 8000);
+      }
+    }
+
+
+    function exibirVideoGoldenScore() {
+      const video = document.getElementById('goldenScoreVideo');
+      video.style.display = 'block';
+      video.play();
+      setTimeout(() => {
+        video.pause();
+        video.style.display = 'none';
+      }, 8000);
+    }
+
+    window.addEventListener('storage', (event) => {
+      if (event.key === 'ipponTrigger') exibirVideoIppon();
+      if (event.key === 'goldenScoreTrigger') exibirVideoGoldenScore();
+    });
+
+    setInterval(() => {
+      atualizarPlacar();
+      atualizarTempo();
+      atualizarSaikomi();
+    }, 1000);
+
+    atualizarPlacar();
+    atualizarTempo();
+    atualizarSaikomi();
+  </script>
+  </body>
+  </html>
+

@@ -1,0 +1,295 @@
+/* Fundo geral mais suave */
+body {
+  font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+  background-color: #e9ecef;
+  color: #212529;
+  margin: 0;
+  padding: 0;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.dark-mode {
+  background-color: #121212;
+  color: #f0f0f0;
+}
+
+/* Container centralizado */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Título */
+h1 {
+  font-size: 2.5em;
+  margin-bottom: 30px;
+  text-align: center;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Botão de tema */
+#toggleTheme {
+  margin-bottom: 20px;
+  padding: 10px 20px;
+  font-size: 1em;
+  background-color: #343a40;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: background-color 0.3s;
+}
+
+#toggleTheme:hover {
+  background-color: #212529;
+}
+
+.dark-mode #toggleTheme {
+  background-color: #f8f9fa;
+  color: #212529;
+}
+
+/* Seção do tempo */
+.timer {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.dark-mode .timer {
+  background-color: #1e1e1e;
+  box-shadow: 0 4px 12px rgba(255,255,255,0.03);
+}
+
+/* Display do tempo */
+#tempo {
+  font-size: 3em;
+  font-weight: bold;
+  margin: 20px 0;
+  display: block;
+  color: #007bff;
+}
+
+.dark-mode #tempo {
+  color: #66aaff;
+}
+@keyframes pulsar-vermelho {
+  0% { color: red; text-shadow: 0 0 5px red; }
+  50% { color: darkred; text-shadow: 0 0 15px red; }
+  100% { color: red; text-shadow: 0 0 5px red; }
+}
+
+.timer-pausado {
+  animation: pulsar-vermelho 1s infinite;
+  font-weight: bold;
+}
+
+/* Golden Score toggle */
+.golden-score-toggle {
+  margin: 20px 0;
+  font-size: 1.1em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.golden-score-toggle input {
+  accent-color: #007bff;
+  transform: scale(1.2);
+}
+
+/* Botões de tempo */
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.buttons button {
+  padding: 10px 18px;
+  font-size: 1em;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: background-color 0.3s;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.buttons button:hover {
+  background-color: #0056b3;
+}
+
+.dark-mode .buttons button {
+  background-color: #444;
+}
+
+.dark-mode .buttons button:hover {
+  background-color: #666;
+}
+
+/* Placar */
+.controle-placares {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin: 40px auto;
+  flex-wrap: wrap;
+}
+
+.controle-time {
+  background: linear-gradient(135deg, #e0e0e0, #ffffff);
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+  min-width: 240px;
+  max-width: 380px;
+  transition: transform 0.2s ease;
+}
+
+.controle-time:hover {
+  transform: scale(1.02);
+}
+
+.dark-mode .controle-time {
+  background: linear-gradient(135deg, #1e1e1e, #2c2c2c);
+  box-shadow: 0 6px 16px rgba(255,255,255,0.05);
+}
+
+.controle-time h2 {
+  font-size: 2em;
+  margin-bottom: 20px;
+  color: #007bff;
+  text-align: center;
+}
+
+.dark-mode .controle-time h2 {
+  color: #66aaff;
+}
+
+/* Pontuações */
+.pontuacoes div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 1.2em;
+  background-color: #f8f9fa;
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+
+.dark-mode .pontuacoes div {
+  background-color: #2a2a2a;
+}
+
+.pontuacoes label {
+  flex: 1;
+  text-align: left;
+  font-weight: bold;
+}
+
+.pontuacoes span {
+  width: 30px;
+  text-align: center;
+  font-size: 1.4em;
+}
+
+.pontuacoes button {
+  width: 36px;
+  height: 36px;
+  font-size: 1.2em;
+  font-weight: bold;
+  border-radius: 50%;
+  padding: 0;
+  margin-left: 6px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  transition: background-color 0.3s;
+}
+
+.pontuacoes button:hover {
+  background-color: #0056b3;
+}
+.controle-time.destaque-vermelho {
+  border: 3px solid red;
+  box-shadow: 0 0 12px rgba(255, 0, 0, 0.4);
+}
+
+.dark-mode .pontuacoes button {
+  background-color: #444;
+}
+
+.dark-mode .pontuacoes button:hover {
+  background-color: #666;
+}
+
+/* Saikomi */
+.controle-saikomi {
+  margin-top: 40px;
+  text-align: center;
+  background-color: #f0f2f5;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.dark-mode .controle-saikomi {
+  background-color: #1a1a1a;
+  box-shadow: 0 4px 12px rgba(255,255,255,0.03);
+}
+
+#saikomiTimer {
+  font-size: 2em;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: #28a745;
+}
+
+.dark-mode #saikomiTimer {
+  color: #7ddc7d;
+}
+
+.saikomi-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.saikomi-buttons button {
+  padding: 10px 20px;
+  font-size: 1em;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: background-color 0.3s;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.saikomi-buttons button:hover {
+  background-color: #218838;
+}
+
+.dark-mode .saikomi-buttons button {
+  background-color: #3c3c3c;
+}
+
+.dark-mode .saikomi-buttons button:hover {
+  background-color: #5c5c5c;
+}

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<!--
+-Mas antes ligue o servidor Spring Boot
+-Para acessar esta página localmente, use:
+    http://localhost:8080/controle.html
+-->
+
+<head>
+    <meta charset="UTF-8">
+    <title>Controle do Placar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/controle.css">
+    <link rel="icon" href="assets/logo_assoc.png" type="image/png">
+</head>
+<body>
+<div class="container">
+    <button id="toggleTheme"> Modo Escuro</button>
+    <h1>Controle do Placar</h1>
+
+    <section class="timer">
+        <h2>Tempo</h2>
+        <span id="tempo">00:00</span>
+
+        <div class="golden-score-toggle">
+            <label>
+                <input type="checkbox" id="goldenScore"> Golden Score
+            </label>
+        </div>
+
+        <div class="buttons">
+            <button onclick="setarQuatroMinutos()">+4 min</button>
+            <button onclick="aumentarTempo()">+1 min</button>
+            <button onclick="diminuirTempo()">-1 min</button>
+            <button onclick="iniciarTimer()">Iniciar</button>
+            <button onclick="pausarTimer()">Pausar</button>
+            <button onclick="resetarTimer()">Resetar</button>
+        </div>
+    </section>
+
+    <section class="controle-placares">
+        <div class="controle-time azul">
+            <label>
+                <input type="checkbox" id="destaqueAzul" onchange="toggleDestaque('azul')">
+                Aka Obi
+            </label>
+            <h2>Azul</h2>
+            <div class="pontuacoes">
+                <div><label>Ippon</label><span id="ipponA">0</span><button onclick="increment('ippon','A')">+</button><button onclick="decrement('ippon','A')">−</button></div>
+                <div><label>Wazari</label><span id="wazariA">0</span><button onclick="increment('wazari','A')">+</button><button onclick="decrement('wazari','A')">−</button></div>
+                <div><label>Yuko</label><span id="yukoA">0</span><button onclick="increment('yuko','A')">+</button><button onclick="decrement('yuko','A')">−</button></div>
+                <div><label>Shido</label><span id="shidoA">0</span><button onclick="increment('shido','A')">+</button><button onclick="decrement('shido','A')">−</button></div>
+            </div>
+        </div>
+
+        <div class="controle-time branco">
+            <label>
+                <input type="checkbox" id="destaqueBranco" onchange="toggleDestaque('branco')">
+                Aka Obi
+            </label>
+            <h2>Branco</h2>
+            <div class="pontuacoes">
+                <div><label>Ippon</label><span id="ipponB">0</span><button onclick="increment('ippon','B')">+</button><button onclick="decrement('ippon','B')">−</button></div>
+                <div><label>Wazari</label><span id="wazariB">0</span><button onclick="increment('wazari','B')">+</button><button onclick="decrement('wazari','B')">−</button></div>
+                <div><label>Yuko</label><span id="yukoB">0</span><button onclick="increment('yuko','B')">+</button><button onclick="decrement('yuko','B')">−</button></div>
+                <div><label>Shido</label><span id="shidoB">0</span><button onclick="increment('shido','B')">+</button><button onclick="decrement('shido','B')">−</button></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="controle-saikomi">
+        <div id="saikomiTimer">Saikomi: 00s</div>
+        <div class="saikomi-buttons">
+            <button onclick="iniciarSaikomi('azul')">Iniciar Saikomi Azul</button>
+            <button onclick="resetarSaikomi()"> Toketa</button>
+            <button onclick="iniciarSaikomi('branco')">Iniciar Saikomi Branco</button>
+        </div>
+    </section>
+</div>
+
+<script src="js/script.js"></script>
+<script>
+    let intervaloSaikomi;
+
+    function atualizarDisplay() {
+        const m = String(minutos).padStart(2, '0');
+        const s = String(segundos).padStart(2, '0');
+        const prefixo = tempoSubindo ? '+' : '';
+        document.getElementById('tempo').textContent = `${prefixo}${m}:${s}`;
+
+        if (timerInterval) {
+            document.getElementById('tempo').classList.remove('timer-pausado');
+        }
+
+            localStorage.setItem('tempo', JSON.stringify({ minutos, segundos, golden: tempoSubindo }));
+        }
+
+    function iniciarTimer() {
+      clearInterval(timerInterval);
+      document.getElementById('tempo').classList.remove('timer-pausado');
+      const tempoSalvo = JSON.parse(localStorage.getItem('tempo')) || {};
+      const goldenAtivo = tempoSalvo.golden || document.getElementById('goldenScore').checked;
+
+      timerInterval = setInterval(() => {
+        if (!tempoSubindo) {
+          if (minutos === 0 && segundos === 0) {
+            if (goldenAtivo) {
+              pausarTimer(); // ✅ Pausa o timer
+              exibirVideoGoldenScore(); // ✅ Exibe o vídeo
+              localStorage.setItem('goldenScoreTrigger', Date.now());
+              tempoSubindo = true;
+              segundos = 1;
+            } else {
+              clearInterval(timerInterval);
+              return;
+            }
+          } else {
+            if (segundos === 0) {
+              segundos = 59;
+              minutos--;
+            } else {
+              segundos--;
+            }
+          }
+        } else {
+          segundos++;
+          if (segundos === 60) {
+            segundos = 0;
+            minutos++;
+          }
+        }
+        atualizarDisplay();
+      }, 1000);
+    }
+
+    function pausarTimer() {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      document.getElementById('tempo').classList.add('timer-pausado');
+      localStorage.setItem('timerPausado', 'true'); // ✅ salva estado
+    }
+
+
+    function resetarTimer() {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      document.getElementById('tempo')?.classList.remove('golden-time');
+      document.getElementById('tempo').classList.remove('timer-pausado');
+      localStorage.setItem('timerPausado', 'false');
+      minutos = 0;
+      segundos = 0;
+      tempoSubindo = false;
+      atualizarDisplay();
+      resetarSaikomi();
+    }
+
+
+    function aumentarTempo() {
+      minutos++;
+      atualizarDisplay();
+    }
+
+    function diminuirTempo() {
+      if (minutos > 0) minutos--;
+      atualizarDisplay();
+    }
+
+    document.getElementById('goldenScore').addEventListener('change', () => {
+      const estadoAtual = document.getElementById('goldenScore').checked;
+      localStorage.setItem('tempo', JSON.stringify({ minutos, segundos, golden: estadoAtual }));
+    });
+
+    function pausarSaikomi() {
+      clearInterval(intervaloSaikomi);
+    }
+
+    function resetarSaikomi() {
+      clearInterval(intervaloSaikomi);
+      localStorage.setItem('saikomi', JSON.stringify({ time: null, segundos: 0 }));
+      document.getElementById('saikomiTimer').textContent = 'Saikomi: 00s';
+      pausarTimer();
+    }
+</script>
+</body>
+</html>
